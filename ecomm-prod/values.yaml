@@ -1,0 +1,241 @@
+configuration-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+
+products-core-service:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 4
+      memory: 6144Mi
+    requests:
+      cpu: 2
+      memory: 4096Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+    JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=100M
+  full-index-job:
+    enabled: true
+    schedule: "0 10 * * *" # At 04:00 AM (CST)
+    host: ecomm-prod-products-core-service
+  incremental-index-job:
+    enabled: true
+    schedule: "0 0-9,11-23 * * *" # Every hour, at 12:00 AM through 03:59 AM (CST) and 05:00 AM (CST) through 11:59 PM
+    host: ecomm-prod-products-core-service
+  branches-etl-job:
+    enabled: true
+    schedule: "0 10 * * 6" # At 04:00 AM (CST) on Saturdays
+    host: ecomm-prod-products-core-service
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+account-management-service:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 4
+      memory: 6144Mi
+    requests:
+      cpu: 2
+      memory: 4096Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+eclipse-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::187728244752:role/eclipse-service-role"
+    name: ""
+  eclipseIp: 192.168.154.206
+  eclipseHostName: ewi.morsco.com
+  eclipseApiIp: 192.168.153.10
+  eclipseApiHostName: api.morsco.com
+  kourierIp: 10.255.184.80
+  kourierHostName: rnirvwvkgatep01.ad.morsco.com
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+mincron-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+
+mincron-adapter-poc:
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+
+notifications-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+
+branches-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-prod-configuration-service:8080
+
+wms-admin-portal:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:187728244752:certificate/2b47c269-a24a-43b7-9463-3812c18bb255
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - "/*"
+  environment:
+    REACT_APP_API_URL: "https://api.internal-prod.reecedev.us/"
+    REACT_APP_OKTA_URL: "https://morsco.okta.com/oauth2/default"
+    REACT_APP_OKTA_CLIENT_ID: "0oaho7jqcw56GpcKj357"
+    REACT_APP_OKTA_SCOPES: "openid profile email groups"
+    REACT_APP_OKTA_CALLBACK: ""
+    REACT_APP_COUNT_POLLING_INTERVAL: "1500"
+
+max-portal:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:187728244752:certificate/0fb30242-ada9-46b0-86bd-18715c70d2d1
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+  environment:
+    REACT_APP_API_URL: "https://api.reece.com/"
+    REACT_APP_OKTA_URL: "https://reeceusadigital.okta.com"
+    REACT_APP_OKTA_CLIENT_ID: "0oaruo46qsI4M3LaN5d6"
+    REACT_APP_ENABLE_TRANSLATION_TEST: false
+    REACT_APP_SEGMENT_API_KEY: "2HfRhtscvgjBB1nJrOqrW4vp7ZJaLM3N"
+    REACT_APP_GOOGLE_API_KEY: "AIzaSyDEVmbEdAOo2i3dkRrGFnrA92ta7qJ08DM"
+    PERCY_TOKEN: "a64bc29b0c9e10cc99885e87fd8a896f26d7d5d07f5cbe15612574342c6f0095"
+    REACT_APP_ENVIRONMENT: "prod"
+    REACT_APP_CONTENTFUL_API_URL: "https://graphql.contentful.com/content/v1/spaces/32w9pi4zc4mq"
+    REACT_APP_CONTENTFUL_API_KEY: "hSRbF7whhrDZplJ5xYzcc3T8HT_n10vCw90IoL7_IbE"
+    REACT_APP_CONTENTFUL_PREVIEW_API_KEY: "fnKfnu_ieAyirTfV39Up55pfWtdFG5ZIt1vqR9IZiWg"
+    REACT_APP_CONTENTFUL_PREVIEW_ENABLE: "false"
+    REACT_APP_CONTENTFUL_ABOUTUS_ID: "13j7MQQu4r6gSXv6KLiTYX"
+
+reece-api:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:187728244752:certificate/fa61b80f-0a84-4722-9a29-61ea9b987fd9
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=90
+    hosts:
+      - paths:
+          - "/*"
+  environment:
+    SPRING_PROFILES_ACTIVE: prod
+    API_SECRET: 1upRhSWC1B
+    API_URL_ACCOUNT_MANAGEMENT: "http://ecomm-prod-account-management-service:8080"
+    API_URL_CONFIG: "http://ecomm-prod-configuration-service:8080"
+    API_URL_BRANCH_SERVICE: "http://ecomm-prod-branches-service:8080"
+    API_URL_PRODUCT_SERVICE: "http://ecomm-prod-products-core-service:8080"
+    API_URL_ECLIPSE_SERVICE: "http://ecomm-prod-eclipse-service:8080"
+    API_URL_MINCRON_SERVICE: "http://ecomm-prod-mincron-service:8080"
+    API_URL_NOTIFICATION_SERVICE: "http://ecomm-prod-notifications-service:8080"
+    OKTA_DOMAIN: https://reeceusadigital.okta.com
+    OKTA_CLIENT_ID: 0oaruo46qsI4M3LaN5d6
+
+post-api-service:
+  replicaCount: 3
+  resources:
+    limits:
+      cpu: 2
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 4Gi
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::187728244752:role/post-api-service-role"
+  environment:
+    POST_ENV: PROD
+    ELASTIC_INDEX_PRODUCTS: post-products-alias
+    ELASTIC_INDEX_SEARCH: post-search
+    ELASTIC_USE_CLOUD: 1
+    SECRETS_MANAGER_KEY: post-api
+    USE_WORD_CATEGORY_CACHE: 2
+    REDIS_SERVER: ecomm-prod-redis-cluster.8u9vo8.0001.use1.cache.amazonaws.com
+    REDIS_PORT: 6379
+
+order-status-job:
+  schedule: "0 * * * *" # Every hour
+  environment:
+    API_URL_PRODUCT_SERVICE: http://ecomm-prod-products-core-service:8080

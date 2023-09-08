@@ -1,0 +1,210 @@
+configuration-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+
+products-core-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 4
+      memory: 6144Mi
+    requests:
+      cpu: 2
+      memory: 4096Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+    JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=100M
+  full-index-job:
+    enabled: true
+    schedule: "0 10 * * *" # At 04:00 AM (CST)
+    host: ecomm-test-products-core-service
+  incremental-index-job:
+    enabled: true
+    schedule: "0 0-9,11-23 * * *" # Every hour, at 12:00 AM through 03:59 AM (CST) and 05:00 AM (CST) through 11:59 PM
+    host: ecomm-test-products-core-service
+  branches-etl-job:
+    enabled: true
+    schedule: "0 10 * * *" # At 04:00 AM (CST)
+    host: ecomm-test-products-core-service
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    # targetConcurrentRequestCount: 30
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+account-management-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+eclipse-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::225156675160:role/eclipse-service-role"
+    name: ""
+  eclipseIp: 192.168.154.106
+  eclipseHostName: ewitest.morsco.com
+  eclipseApiIp: 192.168.153.11
+  eclipseApiHostName: apitest.morsco.com
+  kourierIp: 10.255.184.77
+  kourierHostName: rnirvwvkgated01.ad.morsco.com
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+mincron-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+
+mincron-adapter-poc:
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+
+notifications-service:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-test-configuration-service:8080
+
+max-portal:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:225156675160:certificate/767c4a2e-99d7-4035-9d05-066dbae3664c
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+  environment:
+    REACT_APP_API_URL: "https://api.test.ecomm.reecedev.us/"
+    REACT_APP_OKTA_URL: "https://dev-432546.okta.com"
+    REACT_APP_OKTA_CLIENT_ID: "0oa13b0b5bMKXZfJU4x7"
+    REACT_APP_ENABLE_TRANSLATION_TEST: "false"
+    REACT_APP_SEGMENT_API_KEY: "Pl02bgvESMF4HvCiB8If8HgqdfJCL3GE"
+    REACT_APP_GOOGLE_API_KEY: "AIzaSyDEVmbEdAOo2i3dkRrGFnrA92ta7qJ08DM"
+    REACT_APP_ENVIRONMENT: "test"
+    REACT_APP_CONTENTFUL_API_URL: "https://graphql.contentful.com/content/v1/spaces/32w9pi4zc4mq"
+    REACT_APP_CONTENTFUL_API_KEY: "hSRbF7whhrDZplJ5xYzcc3T8HT_n10vCw90IoL7_IbE"
+    REACT_APP_CONTENTFUL_PREVIEW_API_KEY: "fnKfnu_ieAyirTfV39Up55pfWtdFG5ZIt1vqR9IZiWg"
+    REACT_APP_CONTENTFUL_PREVIEW_ENABLE: "false"
+    REACT_APP_CONTENTFUL_ABOUTUS_ID: "13j7MQQu4r6gSXv6KLiTYX"
+
+reece-api:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:225156675160:certificate/767c4a2e-99d7-4035-9d05-066dbae3664c
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=90
+    hosts:
+      - paths:
+          - "/*"
+  environment:
+    SPRING_PROFILES_ACTIVE: test
+    API_SECRET: sHMG7dvBIS
+    API_URL_ACCOUNT_MANAGEMENT: "http://ecomm-test-account-management-service:8080"
+    API_URL_CONFIG: "http://ecomm-test-configuration-service:8080"
+    API_URL_BRANCH_SERVICE: "http://ecomm-test-branches-service:8080"
+    API_URL_PRODUCT_SERVICE: "http://ecomm-test-products-core-service:8080"
+    API_URL_ECLIPSE_SERVICE: "http://ecomm-test-eclipse-service:8080"
+    API_URL_MINCRON_SERVICE: "http://ecomm-test-mincron-service:8080"
+    API_URL_NOTIFICATION_SERVICE: "http://ecomm-test-notifications-service:8080"
+    OKTA_DOMAIN: https://dev-432546.okta.com
+    OKTA_CLIENT_ID: 0oa13b0b5bMKXZfJU4x7
+    WEBSMART_URL: http://10.255.226.72:8080/WebSmart-apiTest/customerJobList
+
+order-status-job:
+  schedule: "0 * * * *" # Every hour
+  environment:
+    API_URL_PRODUCT_SERVICE: http://ecomm-test-products-core-service:8080
+
+post-api-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 8Gi
+    requests:
+      cpu: 1
+      memory: 4Gi
+  serviceAccount:
+    create: true
+    annotations: 
+      eks.amazonaws.com/role-arn: "arn:aws:iam::225156675160:role/post-api-service-role"
+  environment:
+    POST_ENV: TEST
+    ELASTIC_INDEX_PRODUCTS: post-products-alias
+    ELASTIC_INDEX_SEARCH: test-post-search
+    ELASTIC_USE_CLOUD: 1
+    SECRETS_MANAGER_KEY: post-api
+    USE_WORD_CATEGORY_CACHE: 0
+    REDIS_SERVER: ecomm-test-redis-cluster.rh8ctt.0001.use1.cache.amazonaws.com
+    REDIS_PORT: 6379

@@ -1,0 +1,78 @@
+apiVersion: v2
+name: ecomm-dr-prod
+description: Reece E-Commerce Production DR Environment
+
+# A chart can be either an 'application' or a 'library' chart.
+#
+# Application charts are a collection of templates that can be packaged into versioned archives
+# to be deployed.
+#
+# Library charts provide useful utilities or functions for the chart developer. They're included as
+# a dependency of application charts to inject those utilities and functions into the rendering
+# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+appVersion: 0.1.0
+
+dependencies:
+  - name: products-core-service
+    version: "0.201.1"
+    repository: "@reece-ecomm"
+  - name: configuration-service
+    version: "0.3.0"
+    repository: "@reece-ecomm"
+  - name: account-management-service
+    version: "1.71.0"
+    repository: "@reece-ecomm"
+  - name: reece-api
+    version: "0.136.1"
+    repository: "@reece-ecomm"
+  - name: internal-api
+    version: "0.0.105"
+    repository: "@reece-ecomm"
+  - name: eclipse-service
+    version: "0.77.0"
+    repository: "@reece-ecomm"
+  - name: mincron-service
+    version: "0.38.0"
+    repository: "@reece-ecomm"
+  - name: notifications-service
+    version: "0.28.0"
+    repository: "@reece-ecomm"
+  - name: branches-service
+    version: "0.11.0"
+    repository: "@reece-ecomm"
+  - name: inventory-core-service
+    version: "0.48.0"
+    repository: "@reece-ecomm"
+  - name: special-pricing-service
+    version: "0.31.0"
+    repository: "@reece-ecomm"
+  - name: wms-admin-portal
+    version: "0.85.0"
+    repository: "@reece-ecomm"
+  - name: max-portal
+    version: "0.117.14"
+    repository: "@reece-ecomm"
+  # - name: pi-batch-load
+  #   version: "0.0.14"
+  #   repository: "@reece-ecomm"
+  #   alias: pi-batch-load-eclipse
+  # - name: pi-batch-load
+  #   version: "0.0.14"
+  #   repository: "@reece-ecomm"
+  #   alias: pi-batch-load-mincron
+  # - name: order-status-job
+  #   version: "0.0.6"
+  #   repository: "@reece-ecomm"
+  - name: memcached
+    version: "6.0.2"
+    repository: "https://charts.bitnami.com/bitnami"

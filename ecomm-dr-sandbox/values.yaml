@@ -1,0 +1,284 @@
+configuration-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+
+products-core-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 4
+      memory: 6144Mi
+    requests:
+      cpu: 2
+      memory: 4096Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+    JAVA_TOOL_OPTIONS: -XX:MaxDirectMemorySize=100M
+  branches-etl-job:
+    enabled: true
+    schedule: '0 10 * * *' # At 04:00 AM (CST)
+    host: ecomm-dr-sandbox-products-core-service
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 6
+    # targetConcurrentRequestCount: 30
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+account-management-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+eclipse-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  serviceAccount:
+    create: true
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::361855055033:role/eclipse-service-role"
+    name: ""
+  eclipseIp: 192.168.154.106
+  eclipseHostName: ewitest.morsco.com
+  eclipseApiIp: 192.168.153.11
+  eclipseApiHostName: apitest.morsco.com
+  kourierIp: 10.255.184.77
+  kourierHostName: rnirvwvkgated01.ad.morsco.com
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+  autoscaling:
+    enabled: false
+    minReplicas: 2
+    maxReplicas: 4
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+mincron-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+
+mincron-adapter-poc:
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+
+notifications-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+
+branches-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+
+inventory-core-service:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+
+special-pricing-service:
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+  networkDriveIp: 10.255.224.130
+  networkDriveHostName: mscfileprint001.ad.morsco.com
+  customers-sync-job:
+    enabled: true
+    schedule: '0 3 * * *' # At 03:00 AM (CST)
+    host: ecomm-dr-sandbox-special-pricing-service
+  products-sync-job:
+    enabled: true
+    schedule: '0 4 * * *' # At 04:00 AM (CST)
+    host: ecomm-dr-sandbox-special-pricing-service
+  special-prices-sync-job:
+    enabled: true
+    schedule: '0 5 * * *' # At 05:00 AM (CST)
+    host: ecomm-dr-sandbox-special-pricing-service
+
+wms-admin-portal:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:361855055033:certificate/5ff330de-92cb-4a67-89f1-0ed6b95badd1
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - '/*'
+  environment:
+    REACT_APP_API_URL: 'https://api.dr-sandbox.internal.reecedev.us'
+    REACT_APP_OKTA_URL: 'https://dev-41388917.okta.com'
+    REACT_APP_OKTA_CLIENT_ID: '0oa49l1ekhuIABOKP5d7'
+    REACT_APP_OKTA_SCOPES: 'openid profile email groups'
+    REACT_APP_OKTA_CALLBACK: ''
+    
+max-portal:
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:361855055033:certificate/5ff330de-92cb-4a67-89f1-0ed6b95badd1
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - path: /*
+            pathType: ImplementationSpecific
+  environment:
+    REACT_APP_API_URL: 'https://api.dr-sandbox.ecomm.reecedev.us/'
+    REACT_APP_OKTA_URL: 'https://dev-432546.okta.com'
+    REACT_APP_OKTA_CLIENT_ID: '0oa13b0b5bMKXZfJU4x7'
+    REACT_APP_ENABLE_TRANSLATION_TEST: 'false'
+    REACT_APP_SEGMENT_API_KEY: 'Pl02bgvESMF4HvCiB8If8HgqdfJCL3GE'
+    REACT_APP_GOOGLE_API_KEY: 'AIzaSyDEVmbEdAOo2i3dkRrGFnrA92ta7qJ08DM'
+    REACT_APP_ENVIRONMENT: 'dr-sandbox'
+
+reece-api:
+  replicaCount: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 3072Mi
+    requests:
+      cpu: 1
+      memory: 2048Mi
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:361855055033:certificate/5ff330de-92cb-4a67-89f1-0ed6b95badd1  
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/scheme: internet-facing
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=90
+    hosts:
+      - paths:
+          - '/*'
+  environment:
+    SPRING_PROFILES_ACTIVE: dr-sandbox
+    API_SECRET: sHMG7dvBIS
+    API_URL_ACCOUNT_MANAGEMENT: "http://ecomm-dr-sandbox-account-management-service:8080"
+    API_URL_CONFIG: "http://ecomm-dr-sandbox-configuration-service:8080"
+    API_URL_BRANCH_SERVICE: "http://ecomm-dr-sandbox-branches-service:8080"
+    API_URL_PRODUCT_SERVICE: "http://ecomm-dr-sandbox-products-core-service:8080"
+    API_URL_ECLIPSE_SERVICE: "http://ecomm-dr-sandbox-eclipse-service:8080"
+    API_URL_MINCRON_SERVICE: "http://ecomm-dr-sandbox-mincron-service:8080"
+    API_URL_NOTIFICATION_SERVICE: "http://ecomm-dr-sandbox-notifications-service:8080"
+    OKTA_DOMAIN: https://dev-432546.okta.com
+    OKTA_CLIENT_ID: 0oa13b0b5bMKXZfJU4x7
+
+internal-api:
+  replicaCount: 1
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: alb
+      alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-west-2:361855055033:certificate/5ff330de-92cb-4a67-89f1-0ed6b95badd1  
+      alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS": 443}]'
+      alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+      alb.ingress.kubernetes.io/scheme: internet-facing
+    hosts:
+      - paths:
+          - '/*'
+      
+  environment:
+    API_URL_CONFIG: http://ecomm-dr-sandbox-configuration-service:8080
+    API_URL_ACCOUNT_SERVICE: http://ecomm-dr-sandbox-account-management-service:8080
+    API_URL_PRODUCT_SERVICE: http://ecomm-dr-sandbox-products-core-service:8080
+    API_URL_INVENTORY_SERVICE: http://ecomm-dr-sandbox-inventory-core-service:8080
+    API_URL_ECLIPSE_SERVICE: http://ecomm-dr-sandbox-eclipse-service:8080
+    API_URL_MINCRON_SERVICE: http://ecomm-dr-sandbox-mincron-service:8080
+    API_URL_PRICING_SERVICE: http://ecomm-dr-sandbox-special-pricing-service:8080
+    OKTA_DOMAIN: https://dev-41388917.okta.com
+    OKTA_CLIENT_ID: 0oa4h5fkhgmL0bzyQ5d7
+
+pi-batch-load-mincron:
+  schedule: '*/30 4-23 * * *' # Every thirty minutes at the start of 4am through 11pm
+  environment:
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+    NUM_CONCURRENT_OPERATIONS: 9
+    CONFIG_ENV: dr-sandbox
+    ERP: MINCRON
+
+pi-batch-load-eclipse:
+  schedule: '55 * * * *' #Every hour at the 30th minute
+  environment:
+    SPRING_CLOUD_CONFIG_URI: http://ecomm-dr-sandbox-configuration-service:8080
+    NUM_CONCURRENT_OPERATIONS: 9
+    CONFIG_ENV: dr-sandbox
+    ERP: ECLIPSE
+    
+order-status-job:
+  schedule: '0 * * * *' # Every hour
+  environment:
+    API_URL_PRODUCT_SERVICE: http://ecomm-dr-sandbox-products-core-service:8080
